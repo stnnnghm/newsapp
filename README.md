@@ -4,7 +4,7 @@
 Starter files for the News application built with Go. Tutorial:
 https://freshman.tech/web-development-with-go/
 
-Here's what the [completed application](https://freshman-news.herokuapp.com/)
+Here's what the [completed application](https://stnnnghm-newsapp.herokuapp.com/)
 looks like:
 
 ![demo](https://ik.imagekit.io/freshman/news-demo_MrYio9GKlzSi.png)
@@ -22,7 +22,7 @@ version used to test the code in the tutorial is **1.15.3**.
 - Clone or download this repository to your filesystem.
 
 ```bash
-$ git clone https://github.com/Freshman-tech/news-demo-starter-files
+$ git clone https://github.com/stnnnghm/newsapp-starter-files
 ```
 
 - `cd` into the project directory and follow along with the [tutorial](https://freshman.tech/web-development-with-go/).
