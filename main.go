@@ -8,12 +8,12 @@ import (
 	"math"
 	"net/http"
 	"net/url"
-	"newsapp/news"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/stnnnghm/newsapp/news"
 )
 
 var tpl = template.Must(template.ParseFiles("index.html"))
