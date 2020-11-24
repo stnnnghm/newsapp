@@ -1,5 +1,4 @@
-#newsapp
-# News Demo starter files
+# News Demo
 
 Starter files for the News application built with Go. Tutorial:
 https://freshman.tech/web-development-with-go/
