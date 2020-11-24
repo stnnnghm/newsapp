@@ -1,1 +1,1 @@
-web: bin/newsapp-starter-files
+web: bin/newsapp
