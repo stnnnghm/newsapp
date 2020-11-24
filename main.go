@@ -1,41 +1,87 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
+	"newsapp/news"
 	"os"
+	"strconv"
 	"time"
 
-	"github.com/stnnnghm/newsapp/news"
 	"github.com/joho/godotenv"
 )
 
 var tpl = template.Must(template.ParseFiles("index.html"))
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.Execute(w, nil)
+type Search struct {
+	Query string
+	NextPage int
+	TotalPages int
+	Results *news.Results
 }
 
-func searchHandler(w http.ResponseWriter, r *http.Request) {
-	u, err := url.Parse(r.URL.String())
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	buf := &bytes.Buffer{}
+	err := tpl.Execute(buf, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	params := u.Query()
-	searchQuery := params.Get("q")
-	page := params.Get("page")
-	if page == "" {
-		page = "1"
+	buf.WriteTo(w)
+}
+
+func searchHandler(newsapi *news.Client) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		u, err := url.Parse(r.URL.String())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		params := u.Query()
+		searchQuery := params.Get("q")
+		page := params.Get("page")
+		if page == "" {
+			page = "1"
+		}
+
+		results, err := newsapi.FetchEverything(searchQuery, page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		nextPage, err := strconv.Atoi(page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		search := &Search{
+			Query: searchQuery,
+			NextPage: nextPage,
+			TotalPages: int(math.Ceil(float64(results.TotalResults / newsapi.PageSize))),
+			Results: results,
+		}
+
+		buf := &bytes.Buffer{}
+		err = tpl.Execute(buf, search)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Printf("%+v", results)
+		fmt.Println("Search query is: ", searchQuery)
+		fmt.Println("Page is: ", page)
+		buf.WriteTo(w)
 	}
-
-	fmt.Println("Search query is: ", searchQuery)
-	fmt.Println("Page is: ", page)
-
 }
 
 func main() {
@@ -63,6 +109,6 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	mux.HandleFunc("/", indexHandler)
-	mux.HandleFunc("/search", searchHandler)
+	mux.HandleFunc("/search", searchHandler(newsapi))
 	http.ListenAndServe(":"+port, mux)
 }
