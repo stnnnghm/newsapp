@@ -1,4 +1,4 @@
-module github.com/stnnnghm/newsapp-starter-files
+module github.com/stnnnghm/newsapp
 
 go 1.15
 
